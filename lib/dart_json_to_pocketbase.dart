@@ -11,32 +11,44 @@ readJsonFile() async {
   var map = jsonDecode(input);
 
   for (int i = 0; i < map.length - 1; i++) {
+    insertCountry(
+        map[i]["id"], map[i]["name"], map[i]["emoji"], map[i]["emojiU"]);
     print(
         "${map[i]["id"]} ${map[i]["name"]} ${map[i]["emoji"]} ${map[i]["emojiU"]}");
-    await client.records.create('country', body: {
-      'country_id': map[i]["id"],
-      'name': map[i]["name"],
-      'emoji': map[i]["emoji"],
-      'emojiU': map[i]["emojiU"],
-    });
-
     var state = map[i]["state"];
     for (int j = 0; j < state.length; j++) {
-      await client.records.create('state', body: {
-        'state_id': state[j]["id"],
-        'name': state[j]["name"],
-        'country_id': state[j]["country_id"],
-      });
-      //print("${state[j]["id"]} ${state[j]["name"]} ${state[j]["country_id"]}");
+      insertState(state[j]["id"], state[j]["name"], state[j]["country_id"]);
+      print("${state[j]["id"]} ${state[j]["name"]} ${state[j]["country_id"]}");
       var city = state[j]["city"];
       for (int k = 0; k < city.length; k++) {
-        await client.records.create('city', body: {
-          'city_id': city[k]["id"],
-          'name': city[k]["name"],
-          'state_id': city[k]["state_id"],
-        });
-        //print("${city[k]["id"]} ${city[k]["name"]} ${city[k]["state_id"]}");
+        insertCity(city[k]["id"], city[k]["name"], city[k]["state_id"]);
+        print("${city[k]["id"]} ${city[k]["name"]} ${city[k]["state_id"]}");
       }
     }
   }
+}
+
+insertCountry(int id, String name, String emoji, String emojiU) async {
+  await client.records.create('country', body: {
+    'country_id': id,
+    'name': name,
+    'emoji': emoji,
+    'emojiU': emojiU,
+  });
+}
+
+insertState(int id, String name, int countryId) async {
+  await client.records.create('state', body: {
+    'state_id': id,
+    'name': name,
+    'country_id': countryId,
+  });
+}
+
+insertCity(int id, String name, int stateId) async {
+  await client.records.create('city', body: {
+    'city_id': id,
+    'name': name,
+    'state_id': stateId,
+  });
 }
